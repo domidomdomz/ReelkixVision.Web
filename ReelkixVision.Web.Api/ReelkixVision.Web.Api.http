@@ -1,0 +1,6 @@
+@ReelkixVision.Web.Api_HostAddress = http://localhost:5188
+
+GET {{ReelkixVision.Web.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
