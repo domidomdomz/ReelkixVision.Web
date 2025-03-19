@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.415.20" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReelkixVision.Web.Application\ReelkixVision.Web.Application.csproj" />
     <ProjectReference Include="..\ReelkixVision.Web.Domain\ReelkixVision.Web.Domain.csproj" />
   </ItemGroup>
 
