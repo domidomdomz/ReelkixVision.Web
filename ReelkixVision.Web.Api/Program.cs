@@ -2,6 +2,7 @@ using Amazon.S3;
 using Microsoft.EntityFrameworkCore;
 using ReelkixVision.Web.Application.Interfaces;
 using ReelkixVision.Web.Infrastructure.AWS;
+using ReelkixVision.Web.Infrastructure.ExternalServices;
 using ReelkixVision.Web.Infrastructure.FeatureFlags;
 using ReelkixVision.Web.Infrastructure.Persistence;
 using ReelkixVision.Web.Infrastructure.Services;
@@ -16,6 +17,7 @@ builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 builder.Services.AddScoped<ILoggingService, LoggingService>();
+builder.Services.AddHttpClient<IAnalysisService, ReelkixVisionAnalysisService>();
 
 // Configure EF Core (using a free/local SQL Server instance, adjust as needed).
 builder.Services.AddDbContext<AppDbContext>(options =>
