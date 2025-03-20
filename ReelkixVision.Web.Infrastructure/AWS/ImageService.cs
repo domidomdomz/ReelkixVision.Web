@@ -21,6 +21,8 @@ namespace ReelkixVision.Web.Infrastructure.AWS
         {
             // Read bucket name and create a unique file name.
             string bucketName = _configuration["AWS:BucketName"] ?? "";
+            string region = _configuration["AWS:Region"] ?? "";
+            string uploadFolder = _configuration["AWS:UploadFolder"] ?? "";
             string fileName = $"{Guid.NewGuid()}-{file.FileName}";
 
             using var stream = file.OpenReadStream();
@@ -33,7 +35,7 @@ namespace ReelkixVision.Web.Infrastructure.AWS
             };
 
             await _amazonS3.PutObjectAsync(request);
-            return $"https://{bucketName}.s3.amazonaws.com/{fileName}";
+            return $"https://{bucketName}.s3.{region}.amazonaws.com/{uploadFolder}/{fileName}";
         }
     }
 }
