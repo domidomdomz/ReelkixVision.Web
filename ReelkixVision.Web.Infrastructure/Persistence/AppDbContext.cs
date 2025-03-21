@@ -10,5 +10,17 @@ namespace ReelkixVision.Web.Infrastructure.Persistence
         }
 
         public DbSet<RequestLog> RequestLogs { get; set; }
+        public DbSet<ShoeAnalysisResult> ShoeAnalysisResults { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure one-to-one relationship
+            modelBuilder.Entity<ShoeAnalysisResult>()
+                .HasOne(s => s.RequestLog)
+                .WithOne(r => r.ShoeAnalysisResult)
+                .HasForeignKey<ShoeAnalysisResult>(s => s.RequestLogId);
+        }
     }
 }
