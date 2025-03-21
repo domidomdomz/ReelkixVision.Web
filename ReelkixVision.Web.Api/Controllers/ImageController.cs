@@ -44,17 +44,28 @@ namespace ReelkixVision.Web.Api.Controllers
             }
 
             // Step 2: Optionally log the request if logging is enabled.
-            await _loggingService.LogRequestAsync(new RequestLog
+            var requestLog = new RequestLog
             {
                 RequestTime = DateTime.UtcNow,
                 FileName = file.FileName,
-                Url = imageUrl,
-                ResponseDetails = analysisResult.Text
-            });
+                Url = imageUrl
+            };
+
+            var analysis = new ShoeAnalysisResult
+            {
+                Brand = analysisResult.Brand,
+                Model = analysisResult.Model,
+                Colorway = analysisResult.Colorway,
+                Sku = analysisResult.Sku,
+                Text = analysisResult.Text
+            };
+
+            await _loggingService.LogRequestAsync(requestLog, analysis);
 
             // Return both the image URL and the analysis result.
             return Ok(new
             {
+                Message = "Image uploaded and analyzed successfully.",
                 ImageUrl = imageUrl,
                 Analysis = analysisResult
             });

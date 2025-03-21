@@ -15,13 +15,20 @@ namespace ReelkixVision.Web.Infrastructure.Services
             _featureFlagService = featureFlagService;
         }
 
-        public async Task LogRequestAsync(RequestLog log)
+        public async Task LogRequestAsync(RequestLog log, ShoeAnalysisResult? analysisResult = null)
         {
             // Only log if the feature flag is enabled.
             if (!_featureFlagService.IsDatabaseLoggingEnabled())
                 return;
 
             _dbContext.RequestLogs.Add(log);
+
+            if (analysisResult != null)
+            {
+                analysisResult.RequestLogId = log.Id; // Link the result to the log
+                _dbContext.ShoeAnalysisResults.Add(analysisResult);
+            }
+
             await _dbContext.SaveChangesAsync();
         }
     }
