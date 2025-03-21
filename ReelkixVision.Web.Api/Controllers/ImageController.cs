@@ -31,15 +31,7 @@ namespace ReelkixVision.Web.Api.Controllers
             // Step 1: Upload the image to AWS S3.
             var imageUrl = await _imageService.UploadImageAsync(file);
 
-            // Step 2: Optionally log the request if logging is enabled.
-            await _loggingService.LogRequestAsync(new RequestLog
-            {
-                RequestTime = DateTime.UtcNow,
-                FileName = file.FileName,
-                ResponseDetails = imageUrl
-            });
-
-            // Step 3: Call the Node.js AI-powered API to analyze the image.
+            // Step 2: Call the Node.js AI-powered API to analyze the image.
             ShoeAnalysisResultDto analysisResult;
             try
             {
@@ -50,6 +42,15 @@ namespace ReelkixVision.Web.Api.Controllers
                 // Handle the error as needed.
                 return StatusCode(500, "Failed to analyze image: " + ex.Message);
             }
+
+            // Step 2: Optionally log the request if logging is enabled.
+            await _loggingService.LogRequestAsync(new RequestLog
+            {
+                RequestTime = DateTime.UtcNow,
+                FileName = file.FileName,
+                Url = imageUrl,
+                ResponseDetails = analysisResult.Text
+            });
 
             // Return both the image URL and the analysis result.
             return Ok(new
