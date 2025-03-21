@@ -21,14 +21,16 @@ namespace ReelkixVision.Web.Infrastructure.Services
             if (!_featureFlagService.IsDatabaseLoggingEnabled())
                 return;
 
-            _dbContext.RequestLogs.Add(log);
-
+            // If there's an analysis result, link it via the navigation property.
             if (analysisResult != null)
             {
-                analysisResult.RequestLogId = log.Id; // Link the result to the log
-                _dbContext.ShoeAnalysisResults.Add(analysisResult);
+                log.ShoeAnalysisResult = analysisResult; // This establishes the relationship.
             }
 
+            // Add the RequestLog (and the related ShoeAnalysisResult).
+            _dbContext.RequestLogs.Add(log);
+
+            // Save both in one transaction.
             await _dbContext.SaveChangesAsync();
         }
     }
