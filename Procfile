@@ -1,1 +1,1 @@
-web: dotnet ReelkixVision.Web.Api/bin/Release/net8.0/publish/ReelkixVision.Web.Api.dll
+web: cd ReelkixVision.Web.Api/bin/Release/net8.0/linux-x64/publish/; ./ReelkixVision.Web.Api --urls http://*:$PORT
