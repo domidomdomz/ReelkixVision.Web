@@ -1,1 +1,1 @@
-web: dotnet ReelkixVision.Web.Api.dll
+web: dotnet Reelkix.Vision.Web.Api/bin/Release/net8.0/publish/Reelkix.Vision.Web.Api.dll
