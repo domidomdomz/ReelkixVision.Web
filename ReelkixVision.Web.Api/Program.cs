@@ -9,6 +9,18 @@ using ReelkixVision.Web.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS services with a named policy:
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDev", policy =>
+    {
+        policy.WithOrigins("https://localhost:4200") // Specify the Angular application's address
+              .AllowAnyHeader()                     // Allow all headers
+              .AllowAnyMethod();                    // Allow all HTTP methods (GET, POST, etc.)
+    });
+});
+
+
 // Add services to the container.
 // Add AWS S3 client via AWS SDK DI Extensions.
 builder.Services.AddAWSService<IAmazonS3>();
@@ -31,6 +43,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Use the CORS policy
+app.UseCors("AllowAngularDev");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
