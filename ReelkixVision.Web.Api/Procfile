@@ -1,0 +1,1 @@
+web: dotnet ReelkixVision.Web.Api.dll
