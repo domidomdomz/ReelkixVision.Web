@@ -9,15 +9,32 @@ using ReelkixVision.Web.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add CORS services with a named policy:
+// Retrieve the allowed origins from the "CorsSettings:AllowedOrigins" configuration section.
+var allowedOrigins = builder.Configuration
+    .GetSection("CorsSettings:AllowedOrigins")
+    .Get<string[]>();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularDev", policy =>
+    // Use AllowAnyOrigin if no origins are defined or if "*" is specified.
+    if (allowedOrigins == null || allowedOrigins.Length == 0 || (allowedOrigins.Length == 1 && allowedOrigins[0] == "*"))
     {
-        policy.WithOrigins("https://localhost:4200") // Specify the Angular application's address
-              .AllowAnyHeader()                     // Allow all headers
-              .AllowAnyMethod();                    // Allow all HTTP methods (GET, POST, etc.)
-    });
+        options.AddPolicy("CorsPolicy", policy =>
+        {
+            policy.AllowAnyOrigin()   // Allow requests from any origin.
+                  .AllowAnyHeader()   // Allow any header.
+                  .AllowAnyMethod();  // Allow any HTTP method.
+        });
+    }
+    else
+    {
+        options.AddPolicy("CorsPolicy", policy =>
+        {
+            policy.WithOrigins(allowedOrigins) // Allow only the specified origins.
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+    }
 });
 
 
@@ -45,7 +62,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Use the CORS policy
-app.UseCors("AllowAngularDev");
+app.UseCors("CorsPolicy");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
