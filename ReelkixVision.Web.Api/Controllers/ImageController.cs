@@ -29,7 +29,15 @@ namespace ReelkixVision.Web.Api.Controllers
             }
 
             // Step 1: Upload the image to AWS S3.
-            var imageUrl = await _imageService.UploadImageAsync(file);
+            string? imageUrl = "";
+            try
+            {
+                imageUrl = await _imageService.UploadImageAsync(file);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Failed to upload image: " + ex.Message);
+            }
 
             // Step 2: Call the Node.js AI-powered API to analyze the image.
             ShoeAnalysisResultDto analysisResult;
