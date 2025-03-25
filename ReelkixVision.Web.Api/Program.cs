@@ -9,6 +9,12 @@ using ReelkixVision.Web.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load settings from appsettings.json, then override with environment-specific files
+builder.Configuration
+       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+       .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+       .AddEnvironmentVariables();
+
 // Retrieve the allowed origins from the "CorsSettings:AllowedOrigins" configuration section.
 var allowedOrigins = builder.Configuration
     .GetSection("CorsSettings:AllowedOrigins")
