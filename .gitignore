@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /ReelkixVision.Web.Infrastructure/Migrations
 /ReelkixVision.Web.Api/Properties/ServiceDependencies/reelkix-vision-web-api - Web Deploy
 /ReelkixVision.Web.Api/Properties/ServiceDependencies/reelkix-vision-web-api - Zip Deploy/profile.arm.json
+/.env

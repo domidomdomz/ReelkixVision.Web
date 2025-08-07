@@ -12,34 +12,51 @@ namespace ReelkixVision.Web.Api.Controllers
         private readonly IImageService _imageService;
         private readonly ILoggingService _loggingService;
         private readonly IAnalysisService _analysisService;
+        private readonly IImageCompressionService _imageCompressionService;
 
-        public ImageController(IImageService imageService, ILoggingService loggingService, IAnalysisService analysisService)
+        public ImageController(
+            IImageService imageService, 
+            ILoggingService loggingService, 
+            IAnalysisService analysisService, 
+            IImageCompressionService imageCompressionService)
         {
             _imageService = imageService;
             _loggingService = loggingService;
             _analysisService = analysisService;
+            _imageCompressionService = imageCompressionService;
         }
 
         [HttpPost("upload")]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
-            if (file == null || (file.ContentType != "image/jpeg" && file.ContentType != "image/png"))
+            if (!IsValidFile(file))
             {
-                return BadRequest("Only JPG and PNG files are allowed.");
+                return Problem(
+                    detail: "Only JPG and PNG files are allowed.",
+                    statusCode: 400,
+                    title: "Invalid File Type"
+                );
             }
 
-            // Step 1: Upload the image to AWS S3.
-            string? imageUrl = "";
+            // Step 1: Compress and prepare the file (if required)
+            var compressedStream = await _imageCompressionService.CompressImageIfNecessary(file);
+
+            // Step 2: Upload to AWS S3
+            string imageUrl;
             try
             {
-                imageUrl = await _imageService.UploadImageAsync(file);
+                imageUrl = await _imageService.UploadImageAsync(compressedStream);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Failed to upload image: " + ex.Message);
+                return Problem(
+                    detail: $"Failed to upload image: {ex.Message}",
+                    statusCode: 500,
+                    title: "Image Upload Error"
+                );
             }
 
-            // Step 2: Call the Node.js AI-powered API to analyze the image.
+            // Step 3: Analyze the image
             ShoeAnalysisResultDto analysisResult;
             try
             {
@@ -47,15 +64,35 @@ namespace ReelkixVision.Web.Api.Controllers
             }
             catch (Exception ex)
             {
-                // Handle the error as needed.
-                return StatusCode(500, "Failed to analyze image: " + ex.Message);
+                return Problem(
+                    detail: $"Failed to analyze image: {ex.Message}",
+                    statusCode: 500,
+                    title: "Image Analysis Error"
+                );
             }
 
-            // Step 2: Optionally log the request if logging is enabled.
+            // Step 4: Log the request
+            await LogRequest(file.FileName, imageUrl, analysisResult);
+
+            return Ok(new
+            {
+                Message = "Image uploaded, compressed, and analyzed successfully.",
+                ImageUrl = imageUrl,
+                Analysis = analysisResult
+            });
+        }
+
+        private bool IsValidFile(IFormFile file)
+        {
+            return file != null && (file.ContentType == "image/jpeg" || file.ContentType == "image/png");
+        }
+
+        private async Task LogRequest(string fileName, string imageUrl, ShoeAnalysisResultDto analysisResult)
+        {
             var requestLog = new RequestLog
             {
                 RequestTime = DateTime.UtcNow,
-                FileName = file.FileName,
+                FileName = fileName,
                 Url = imageUrl
             };
 
@@ -69,14 +106,6 @@ namespace ReelkixVision.Web.Api.Controllers
             };
 
             await _loggingService.LogRequestAsync(requestLog, analysis);
-
-            // Return both the image URL and the analysis result.
-            return Ok(new
-            {
-                Message = "Image uploaded and analyzed successfully.",
-                ImageUrl = imageUrl,
-                Analysis = analysisResult
-            });
         }
     }
 }

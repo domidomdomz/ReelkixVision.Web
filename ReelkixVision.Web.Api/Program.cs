@@ -53,6 +53,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 builder.Services.AddScoped<ILoggingService, LoggingService>();
 builder.Services.AddHttpClient<IAnalysisService, ReelkixVisionAnalysisService>();
+builder.Services.AddScoped<IImageCompressionService, ImageCompressionService>();
 
 // Configure EF Core (using a free/local SQL Server instance, adjust as needed).
 builder.Services.AddDbContext<AppDbContext>(options =>
